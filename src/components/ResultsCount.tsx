@@ -1,3 +1,7 @@
-export default function ResultsCount() {
-  return <p className="count">0 results</p>;
+export default function ResultsCount({
+  totalNumberOfJobs,
+}: {
+  totalNumberOfJobs: number;
+}) {
+  return <p className="count">{totalNumberOfJobs} results</p>;
 }
