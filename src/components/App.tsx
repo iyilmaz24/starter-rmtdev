@@ -3,7 +3,7 @@ import BookmarksButton from "./BookmarksButton";
 import Container from "./Container";
 import Footer from "./Footer";
 import { Header, HeaderTop } from "./Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Logo from "./Logo";
 import SearchForm from "./SearchForm";
 import JobItemContent from "./JobItemContent";
@@ -12,30 +12,11 @@ import JobList from "./JobList";
 import PaginationControls from "./PaginationControls";
 import ResultsCount from "./ResultsCount";
 import SortingControls from "./SortingControls";
+import { useJobItems } from "../lib/hooks";
 
 function App() {
-  const [jobItems, setJobItems] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchJobs = async () => {
-      if (!searchText) return;
-      try {
-        const resp = await fetch(
-          `https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`
-        );
-        if (!resp.ok) throw new Error("Failed to fetch jobs");
-        const data = await resp.json();
-        setIsLoading(false);
-        setJobItems(data.jobItems);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchJobs();
-  }, [searchText]);
+  const [jobItems, isLoading] = useJobItems(searchText);
 
   return (
     <>
@@ -63,7 +44,7 @@ function App() {
 
           <PaginationControls></PaginationControls>
         </Sidebar>
-        <JobItemContent></JobItemContent>
+        <JobItemContent />
       </Container>
 
       <Footer></Footer>
