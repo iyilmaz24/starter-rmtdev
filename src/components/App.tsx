@@ -14,6 +14,7 @@ import ResultsCount from "./ResultsCount";
 import SortingControls from "./SortingControls";
 import { useJobItems, useDebounce } from "../lib/hooks";
 import { Toaster } from "react-hot-toast";
+import { RESULTS_PER_PAGE } from "../lib/constants";
 
 function App() {
   const [searchText, setSearchText] = useState("");
@@ -21,15 +22,21 @@ function App() {
   const { jobItems, isLoading } = useJobItems(debouncedSearchText);
 
   const totalNumberOfJobs = jobItems?.length || 0;
-  const jobItemsSliced = jobItems?.slice(0, 7) || [];
 
   const [currentPage, setCurrentPage] = useState(1);
+  const jobItemsSliced =
+    jobItems?.slice(
+      currentPage * RESULTS_PER_PAGE - RESULTS_PER_PAGE,
+      currentPage * RESULTS_PER_PAGE
+    ) || [];
+
   const maxPage =
-    totalNumberOfJobs !== 0 ? Math.ceil(totalNumberOfJobs / 7) : 0;
+    totalNumberOfJobs !== 0
+      ? Math.ceil(totalNumberOfJobs / RESULTS_PER_PAGE)
+      : 0;
   const handleChangePage = (direction: "next" | "prev") => {
-    console.log(direction);
     if (direction === "next") {
-      currentPage < Math.ceil(totalNumberOfJobs / 7)
+      currentPage < Math.ceil(totalNumberOfJobs / RESULTS_PER_PAGE)
         ? setCurrentPage((prev) => prev + 1)
         : null;
     } else if (direction === "prev") {
