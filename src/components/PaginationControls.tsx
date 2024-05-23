@@ -1,7 +1,8 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { PageDirection } from "../lib/types";
 
 type PaginationProps = {
-  onClick: (direction: "next" | "prev") => void;
+  onClick: (direction: PageDirection) => void;
   prevPage: number;
   nextPage: number;
   maxPage: number;
@@ -15,7 +16,7 @@ export default function Pagination({
 }: PaginationProps) {
   const setPage = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    direction: "next" | "prev"
+    direction: PageDirection
   ) => {
     onClick(direction);
     e.currentTarget.blur();

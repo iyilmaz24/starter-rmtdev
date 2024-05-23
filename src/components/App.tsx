@@ -15,17 +15,27 @@ import SortingControls from "./SortingControls";
 import { useJobItems, useDebounce } from "../lib/hooks";
 import { Toaster } from "react-hot-toast";
 import { RESULTS_PER_PAGE } from "../lib/constants";
+import { SortBy, PageDirection } from "../lib/types";
 
 function App() {
   const [searchText, setSearchText] = useState("");
   const debouncedSearchText = useDebounce(searchText, 250);
   const { jobItems, isLoading } = useJobItems(debouncedSearchText);
+  const [sortBy, setSortBy] = useState<SortBy>("relevant");
 
   const totalNumberOfJobs = jobItems?.length || 0;
 
   const [currentPage, setCurrentPage] = useState(1);
+  const jobItemsSorted = [...(jobItems || [])]?.sort((a, b) => {
+    if (sortBy === "relevant") {
+      return b.relevanceScore - a.relevanceScore;
+    } else {
+      return Number(a.daysAgo) - Number(b.daysAgo);
+    }
+  });
+
   const jobItemsSliced =
-    jobItems?.slice(
+    jobItemsSorted?.slice(
       currentPage * RESULTS_PER_PAGE - RESULTS_PER_PAGE,
       currentPage * RESULTS_PER_PAGE
     ) || [];
@@ -34,7 +44,8 @@ function App() {
     totalNumberOfJobs !== 0
       ? Math.ceil(totalNumberOfJobs / RESULTS_PER_PAGE)
       : 0;
-  const handleChangePage = (direction: "next" | "prev") => {
+
+  const handleChangePage = (direction: PageDirection) => {
     if (direction === "next") {
       currentPage < Math.ceil(totalNumberOfJobs / RESULTS_PER_PAGE)
         ? setCurrentPage((prev) => prev + 1)
@@ -42,6 +53,11 @@ function App() {
     } else if (direction === "prev") {
       currentPage != 1 ? setCurrentPage((prev) => prev - 1) : null;
     }
+  };
+
+  const handleChangeSortBy = (newSortBy: SortBy) => {
+    setCurrentPage(1);
+    setSortBy(newSortBy);
   };
 
   return (
@@ -63,7 +79,7 @@ function App() {
         <Sidebar>
           <SidebarTop>
             <ResultsCount totalNumberOfJobs={totalNumberOfJobs} />
-            <SortingControls></SortingControls>
+            <SortingControls onClick={handleChangeSortBy} sortBy={sortBy} />
           </SidebarTop>
 
           <JobList jobItems={jobItemsSliced} isLoading={isLoading}></JobList>

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { BASE_API_URL } from "./constants";
 import { useQuery } from "@tanstack/react-query";
 import { JobItemApiResponse, JobItemsApiResponse } from "./types";
 import { handleError } from "./utils";
+import { BookmarksContext } from "../contexts/BookmarksContextProvider";
 
 const fetchJobItem = async (jobItemId: number): Promise<JobItemApiResponse> => {
   const resp = await fetch(`${BASE_API_URL}/${jobItemId}`);
@@ -85,4 +86,28 @@ export function useDebounce<T>(value: T, delay = 1000): T {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() =>
+    JSON.parse(localStorage.getItem(key) || JSON.stringify(initialValue))
+  );
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value, key]);
+
+  return [value, setValue] as const;
+}
+
+// -----------------------------------------------------
+
+export function useBookmarksContext() {
+  const context = useContext(BookmarksContext);
+  if (!context) {
+    throw new Error(
+      "useContext(BookmarksContext) must be used within a BookmarksProvider"
+    );
+  }
+  return context;
 }

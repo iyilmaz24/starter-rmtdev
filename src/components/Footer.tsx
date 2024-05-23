@@ -3,11 +3,10 @@ export default function Footer() {
     <footer className="footer">
       <small>
         <p>
-          © Copyright by{" "}
-          <a href="https://bytegrad.com" target="_blank">
-            ByteGrad.com
+          Check the source code on{" "}
+          <a href="https://github.com/iyilmaz24/starter-rmtdev" target="_blank">
+            GitHub
           </a>
-          . Intended for learning or your portfolio.
         </p>
       </small>
 
