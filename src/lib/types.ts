@@ -16,3 +16,13 @@ export type JobItemExpanded = JobItem & {
   qualifications: string[];
   reviews: string[];
 };
+
+export type JobItemApiResponse = {
+  public: boolean;
+  jobItem: JobItemExpanded;
+};
+
+export type JobItemsApiResponse = {
+  public: boolean;
+  jobItems: JobItemExpanded[];
+};
