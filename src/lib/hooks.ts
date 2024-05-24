@@ -1,9 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { BASE_API_URL } from "./constants";
-import { useQuery } from "@tanstack/react-query";
-import { JobItemApiResponse, JobItemsApiResponse } from "./types";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import {
+  JobItemApiResponse,
+  JobItemExpanded,
+  JobItemsApiResponse,
+} from "./types";
 import { handleError } from "./utils";
 import { BookmarksContext } from "../contexts/BookmarksContextProvider";
+import { ActiveIdContext } from "../contexts/ActiveIdContextProvider";
 
 const fetchJobItem = async (jobItemId: number): Promise<JobItemApiResponse> => {
   const resp = await fetch(`${BASE_API_URL}/${jobItemId}`);
@@ -57,7 +62,7 @@ export function useActiveJobItem() {
   return [activeJobItem, isLoading] as const;
 }
 
-export function useJobItems(searchText: string) {
+export function useSearchQuery(searchText: string) {
   const { data, isInitialLoading } = useQuery(
     ["job-items", searchText],
     () => fetchJobItems(searchText),
@@ -100,13 +105,64 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   return [value, setValue] as const;
 }
 
+export function useJobItems(ids: number[]) {
+  const results = useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ["job-item", id],
+      queryFn: () => fetchJobItem(id),
+      staleTime: 1000 * 60 * 60,
+      refetchOnWindowFocus: false,
+      retry: false,
+      enabled: Boolean(id),
+      onError: (err: unknown) => handleError(err, "Failed to fetch jobs list"),
+    })),
+  });
+
+  const jobItems = results
+    .map((result) => result.data?.jobItem)
+    .filter((jobItem) => jobItem !== undefined) as JobItemExpanded[];
+  const isLoading = results.some((result) => result.isLoading);
+  return {
+    jobItems,
+    isLoading,
+  };
+}
+
+export function useOnClickOutside(
+  refs: React.RefObject<HTMLElement>[],
+  handler: () => void
+) {
+  useEffect(() => {
+    // if the user clicks outside of any passed refs, call handler
+    const handleClick = (e: MouseEvent) => {
+      e.target instanceof HTMLElement &&
+        refs.every((ref) => !ref.current?.contains(e.target as Node)) &&
+        handler();
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [refs, handler]);
+}
 // -----------------------------------------------------
 
 export function useBookmarksContext() {
   const context = useContext(BookmarksContext);
   if (!context) {
     throw new Error(
-      "useContext(BookmarksContext) must be used within a BookmarksProvider"
+      "useContext(BookmarksContext) must be used within a BookmarksContext.Provider"
+    );
+  }
+  return context;
+}
+
+export function useActiveIdContext() {
+  const context = useContext(ActiveIdContext);
+  if (!context) {
+    throw new Error(
+      "useContext(ActiveIdContext) must be used within a ActiveIdContext.Provider"
     );
   }
   return context;
