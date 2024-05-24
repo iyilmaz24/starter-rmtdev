@@ -9,6 +9,8 @@ import {
 import { handleError } from "./utils";
 import { BookmarksContext } from "../contexts/BookmarksContextProvider";
 import { ActiveIdContext } from "../contexts/ActiveIdContextProvider";
+import { SearchTextContext } from "../contexts/SearchTextContextProvider";
+import { JobItemsContext } from "../contexts/JobItemsContextProvider";
 
 const fetchJobItem = async (jobItemId: number): Promise<JobItemApiResponse> => {
   const resp = await fetch(`${BASE_API_URL}/${jobItemId}`);
@@ -163,6 +165,26 @@ export function useActiveIdContext() {
   if (!context) {
     throw new Error(
       "useContext(ActiveIdContext) must be used within a ActiveIdContext.Provider"
+    );
+  }
+  return context;
+}
+
+export function useSearchTextContext() {
+  const context = useContext(SearchTextContext);
+  if (!context) {
+    throw new Error(
+      "useContext(SearchTextContext) must be used within a SearchTextContext.Provider"
+    );
+  }
+  return context;
+}
+
+export function useJobItemsContext() {
+  const context = useContext(JobItemsContext);
+  if (!context) {
+    throw new Error(
+      "useContext(JobItemsContext) must be used within a JobItemsContext.Provider"
     );
   }
   return context;
