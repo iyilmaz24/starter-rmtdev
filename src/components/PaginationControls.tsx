@@ -1,35 +1,26 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { PageDirection } from "../lib/types";
+import { useJobItemsContext } from "../lib/hooks";
 
-type PaginationProps = {
-  onClick: (direction: PageDirection) => void;
-  prevPage: number;
-  nextPage: number;
-  maxPage: number;
-};
+export default function Pagination() {
+  const { currentPage, maxPage, handleChangePage } = useJobItemsContext();
 
-export default function Pagination({
-  onClick,
-  prevPage,
-  nextPage,
-  maxPage,
-}: PaginationProps) {
   const setPage = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     direction: PageDirection
   ) => {
-    onClick(direction);
+    handleChangePage(direction);
     e.currentTarget.blur();
   };
 
   return (
     <section className="pagination">
-      {prevPage != 0 ? (
+      {currentPage - 1 != 0 ? (
         <button
           className="pagination__button"
           onClick={(e) => setPage(e, "prev")}
         >
-          <ArrowLeftIcon /> Page {prevPage}
+          <ArrowLeftIcon /> Page {currentPage - 1}
         </button>
       ) : (
         <button className="pagination__button" disabled>
@@ -37,12 +28,12 @@ export default function Pagination({
         </button>
       )}
 
-      {maxPage === 0 ? null : nextPage - 1 !== maxPage ? (
+      {maxPage === 0 ? null : currentPage !== maxPage ? (
         <button
           className="pagination__button"
           onClick={(e) => setPage(e, "next")}
         >
-          Page {nextPage} <ArrowRightIcon />
+          Page {currentPage + 1} <ArrowRightIcon />
         </button>
       ) : (
         <button className="pagination__button" disabled>
